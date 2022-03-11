@@ -8,10 +8,12 @@ const MusicPlayer = ({song, imgSrc}) => {
     const [isLove, setIsLove] = useState(false);
     const [ isPlaying, setIsPlaying ] = useState(false);
     const [duration, setDuration] = useState(0)
+    const [currentTime, setCurrentTime] = useState(0);
 
 
     const audioPlayer = useRef();  // our audiotags
     const progressBar = useRef();  // our progressbar
+    const animationRef = useRef(); 
 
     useEffect(()=> {
         const seconds = Math.floor(audioPlayer.current.duration);
@@ -22,22 +24,55 @@ const MusicPlayer = ({song, imgSrc}) => {
         audioPlayer?.current?.readyState,
     ])
 
-    const changeLoved = () => {
-        setIsLove(!isLove)
-        
-    }
 
     const changePlayPause = () => {
         const prevValue = isPlaying;
         
         if(!prevValue){
             audioPlayer.current.play();
+            animationRef.current = requestAnimationFrame(whilePlaying)
         } else {
             audioPlayer.current.pause();
+            cancelAnimationFrame(animationRef.current)
         }
 
         setIsPlaying(!isPlaying)
     }
+
+    
+
+    const CalculateTime = (sec) => {
+        const minutes = Math.floor(sec/60);
+        const returnMin = minutes < 10 ? `0${minutes}` : `${minutes}`;
+        const seconds = Math.floor(sec % 60);
+        const returnSec = seconds < 10 ? `0${seconds}` : `${seconds}`; 
+
+        return `${returnMin}:${returnSec}`;
+    }
+
+    const changeProgress = () => {
+        audioPlayer.current.currentTime = progressBar.current.value;
+        changeCurrentTime()
+    }
+
+    const whilePlaying = () => {
+        progressBar.current.currentTime = progressBar.current.value;
+        changeCurrentTime()
+        animationRef.current = requestAnimationFrame(whilePlaying)
+    }
+
+    const changeCurrentTime = () => {
+        progressBar.current.style.setProperty('--player-played',
+         `${(progressBar.current.value / duration) * 100}%`)
+
+        setCurrentTime(progressBar.current.value)
+    }
+
+    const changeLoved = () => {
+        setIsLove(!isLove)   
+    }
+
+    
 
   return (
     <div className='musicPlayer'>
@@ -91,9 +126,13 @@ const MusicPlayer = ({song, imgSrc}) => {
             </div>
 
             <div className='bottom'>
-               <div className='time'>00:00</div>
-                <input type='range' className='progressBar' ref={progressBar}/>
-                <div className='durantion'>{duration}</div>
+               <div className='time'>{CalculateTime(currentTime)}</div>
+                <input type='range' className='progressBar' ref={progressBar} onChange={changeProgress}/>
+                <div className='durantion'>
+                    {duration && !isNaN(duration) && CalculateTime(duration)
+                        ? CalculateTime(duration)
+                        : '00:00'}
+                </div>
             </div>
         </div>
     </div>
