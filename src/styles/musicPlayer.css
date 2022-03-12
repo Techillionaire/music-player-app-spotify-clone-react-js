@@ -6,8 +6,8 @@
 
 .musicPlayer .songImage {
     width: 100px;
-    min-width: 100px;
-    height: 100px;
+    min-width: 10X X 0px;
+    height: 80px;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.4);
@@ -164,6 +164,7 @@
   .songAttributes .top .middle i,
   .songAttributes .top .right i{
     margin: 0 5px;
+    font-size: 14px;
   }
 
   .songAttributes .bottom {
